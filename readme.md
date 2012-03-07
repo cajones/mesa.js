@@ -17,7 +17,27 @@ Given a table
 		</tbody>
 	</table>
 
-Mesa.Core.load() will return 
+mesa.Core.load() will return 
+	
+	[
+		['A', 'The First Letter'],
+		['B', 'The Second Letter']
+	]
+
+Given the markup
+	
+	<div id="model">
+		<div>
+			<span>A</span>
+			<span>The First Letter</span> 
+		</div>
+		<div>
+			<span>B</span>
+			<span>The Second Letter</span>
+		</divv>
+	</div>
+
+mesa.Core.load({ table:'#model', row:'div', col:'span' }) will return 
 	
 	[
 		['A', 'The First Letter'],
