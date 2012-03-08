@@ -32,7 +32,7 @@ mesa.FieldMapper.prototype.map = function(i, e){
 mesa.Core = (function($, util, mapper){
     
     var defaults = {
-        root: 'root tbody',
+        root: 'table tbody',
         row: 'tr',
         col: 'td',
         fieldNames: null,
