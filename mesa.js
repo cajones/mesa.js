@@ -16,30 +16,51 @@ mesa.Util = {
 
 };
 
-mesa.Core = (function($, util){
+mesa.FieldMapper = function(fieldNames) {
+    var hasFields = fieldNames !== null && fieldNames !== undefined && fieldNames instanceof Array && fieldNames.length >= 1;
+    this.getName = function(index) {
+        return hasFields ? fieldNames[index] : index;
+    };
+};
+mesa.FieldMapper.prototype.map = function(i, e){
+    return {
+        name: this.getName(i),
+        value: $(e).text()
+    };
+};
 
+mesa.Core = (function($, util, mapper){
+    
     var defaults = {
         root: 'root tbody',
         row: 'tr',
-        col: 'td'
+        col: 'td',
+        fieldNames: null,
+        mapper: null
     };
 
-    function cols(row, options) {
+    function fields(row, options) {
 
-        var c = [];
+        var model = {};
         $(options.col, row).each(function(i, e) {
-            c.push($(e).text());
+            var obj = options.mapper.map(i, e);
+            model[obj.name] = obj.value;
         });
-        return c;
+        return model;
     }
 
     function rows(root, options) {
 
         var r = [];
         $(options.row, root).each(function(i, e) {
-            r.push(cols($(e), options));
+            r.push(fields($(e), options));
         });
         return r;
+    }
+
+    function prepareMapper(options) {
+        options.mapper = options.mapper || new mapper(options.fieldNames);
+        return options;
     }
 
     return {
@@ -47,17 +68,17 @@ mesa.Core = (function($, util){
         load: function(options) {
 
             var o = util.defaults(options || {}, defaults);
-            return rows($(o.root), o);
+            return rows($(o.root), prepareMapper(o));
         },
 
         loadFromQuery: function(query, options) {
             
             var o = util.defaults(options || {}, defaults);
-            return rows(query, o);
+            return rows(query, prepareMapper(o));
         }
     };  
 
-})(jQuery, mesa.Util);
+})(jQuery, mesa.Util, mesa.FieldMapper);
 
 mesa.Plugin = (function($, core) {
 

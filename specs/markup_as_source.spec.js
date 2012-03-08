@@ -28,6 +28,20 @@ describe("loading from a markup (set of divs and spans) containing data rows", f
 			expectRowToHaveExpectedColumns(i);
 		};
 	});
+
+	it("should provide an name field", function() {
+        
+        for (var i = 0; i < expectedRows.length; i++) {
+            expect(data[i]).to.have.property('name');
+        };
+    });
+
+    it("should provide an age field", function() {
+        
+        for (var i = 0; i < expectedRows.length; i++) {
+            expect(data[i]).to.have.property('age');
+        };
+    });
 });
 
 describe("loading from a markup (set of divs and spans) containing data rows with jQuery", function(){
@@ -58,4 +72,18 @@ describe("loading from a markup (set of divs and spans) containing data rows wit
 			expectRowToHaveExpectedColumns(i);
 		};
 	});
+
+	it("should provide an name field", function() {
+        
+        for (var i = 0; i < expectedRows.length; i++) {
+            expect(data[i]).to.have.property('name');
+        };
+    });
+
+    it("should provide an age field", function() {
+        
+        for (var i = 0; i < expectedRows.length; i++) {
+            expect(data[i]).to.have.property('age');
+        };
+    });
 });
