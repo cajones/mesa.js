@@ -53,74 +53,83 @@ mesa.FieldMapper.prototype.map = function(i, e){
     };
 };
 
-mesa.ObjectFactory.register.instance(window['jQuery'] || window['Zepto'] || mesa.Util.SelectorEngine, 'selector engine');
-mesa.ObjectFactory.register.instance(window['_'] || mesa.Util, 'utility');
-mesa.ObjectFactory.register.instance(mesa.FieldMapper, 'field mapper');
+mesa.init = function() {
 
-mesa.Core = (function($, util, mapper){
+    mesa.ObjectFactory.register.instance(window['jQuery'] || window['Zepto'] || mesa.Util.SelectorEngine, 'selector engine');
+    mesa.ObjectFactory.register.instance(window['_'] || mesa.Util, 'utility');
+    mesa.ObjectFactory.register.instance(mesa.FieldMapper, 'field mapper');
+};
+
+mesa.construct = function() {
+
+    mesa.Core = (function($, util, mapper){
     
-    var defaults = {
-        root: 'table tbody',
-        row: 'tr',
-        col: 'td',
-        fieldNames: null,
-        mapper: null
-    };
+        var defaults = {
+            root: 'table tbody',
+            row: 'tr',
+            col: 'td',
+            fieldNames: null,
+            mapper: null
+        };
 
-    function fields(row, options) {
+        function fields(row, options) {
 
-        var model = {};
-        $(options.col, row).each(function(i, e) {
-    
-            var obj = options.mapper.map(i, e);
-            model[obj.name] = obj.value;
-        });
-        return model;
-    }
-
-    function rows(root, options) {
-
-        var r = [];
-        $(options.row, root).each(function(i, e) {
-    
-            r.push(fields($(e), options));
-        });
-        return r;
-    }
-
-    function ensureOptionsAreInitialised(options) {
-        var options = util.defaults(options || {}, defaults);
-        options.mapper = options.mapper || new mapper(options.fieldNames);
-        return options;
-    }
-
-    return {
-
-        load: function(options) {
-
-            return rows($(options.root), ensureOptionsAreInitialised(options));
-        },
-
-        loadFromQuery: function(query, options) {
-            
-            return rows(query, ensureOptionsAreInitialised(options));
+            var model = {};
+            $(options.col, row).each(function(i, e) {
+        
+                var obj = options.mapper.map(i, e);
+                model[obj.name] = obj.value;
+            });
+            return model;
         }
-    };  
 
-})(mesa.ObjectFactory.create('selector engine'), mesa.ObjectFactory.create('utility'), mesa.ObjectFactory.create('field mapper'));
+        function rows(root, options) {
 
-mesa.Plugin = (function($, core) {
+            var r = [];
+            $(options.row, root).each(function(i, e) {
+        
+                r.push(fields($(e), options));
+            });
+            return r;
+        }
 
-    return {
-        integrateJQuery: function() {
-            
-            $.fn.mesa = function(options) {
+        function ensureOptionsAreInitialised(options) {
+            var options = util.defaults(options || {}, defaults);
+            options.mapper = options.mapper || new mapper(options.fieldNames);
+            return options;
+        }
+
+        return {
+
+            load: function(options) {
+
+                return rows($(options.root), ensureOptionsAreInitialised(options));
+            },
+
+            loadFromQuery: function(query, options) {
                 
-                return core.loadFromQuery(this, options);
+                return rows(query, ensureOptionsAreInitialised(options));
+            }
+        };  
+
+    })(mesa.ObjectFactory.create('selector engine'), mesa.ObjectFactory.create('utility'), mesa.ObjectFactory.create('field mapper'));
+
+    mesa.Plugin = (function($, core) {
+
+        return {
+            integrateJQuery: function() {
+                
+                $.fn.mesa = function(options) {
+                    
+                    return core.loadFromQuery(this, options);
+                }
             }
         }
-    }
 
-})(mesa.ObjectFactory.create('selector engine'), mesa.Core);
+    })(mesa.ObjectFactory.create('selector engine'), mesa.Core);
 
-mesa.Plugin.integrateJQuery();
+    mesa.Plugin.integrateJQuery();
+};
+
+mesa.init();
+mesa.construct();
