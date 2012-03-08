@@ -1,5 +1,23 @@
 window.mesa = window.mesa || {};
 
+mesa.ObjectFactory = (function() {
+    
+    var container = {};
+    return {
+        register: {
+            instance: function(obj, named) {
+    
+                container[named] = obj;
+            }
+        },
+        create: function(name) {
+
+            if(!container.hasOwnProperty(name)) throw 'Object factory does not contain an instance named \'' + name + '\''; 
+            return container[name];
+        }
+    };
+})();
+
 mesa.Util = {
 
     defaults: function(obj) {
@@ -12,22 +30,32 @@ mesa.Util = {
             }
         };
         return obj;
+    },
+    SelectorEngine: function() {
+        
+        throw "jQuery or Zepto is required as a selector engine.";
     }
-
 };
 
 mesa.FieldMapper = function(fieldNames) {
+    
     var hasFields = fieldNames !== null && fieldNames !== undefined && fieldNames instanceof Array && fieldNames.length >= 1;
     this.getName = function(index) {
+    
         return hasFields  ? fieldNames[index] : index;
     };
 };
 mesa.FieldMapper.prototype.map = function(i, e){
+    
     return {
         name: this.getName(i),
         value: $(e).text()
     };
 };
+
+mesa.ObjectFactory.register.instance(window['jQuery'] || window['Zepto'] || mesa.Util.SelectorEngine, 'selector engine');
+mesa.ObjectFactory.register.instance(window['_'] || mesa.Util, 'utility');
+mesa.ObjectFactory.register.instance(mesa.FieldMapper, 'field mapper');
 
 mesa.Core = (function($, util, mapper){
     
@@ -43,6 +71,7 @@ mesa.Core = (function($, util, mapper){
 
         var model = {};
         $(options.col, row).each(function(i, e) {
+    
             var obj = options.mapper.map(i, e);
             model[obj.name] = obj.value;
         });
@@ -53,12 +82,14 @@ mesa.Core = (function($, util, mapper){
 
         var r = [];
         $(options.row, root).each(function(i, e) {
+    
             r.push(fields($(e), options));
         });
         return r;
     }
 
-    function prepareMapper(options) {
+    function ensureOptionsAreInitialised(options) {
+        var options = util.defaults(options || {}, defaults);
         options.mapper = options.mapper || new mapper(options.fieldNames);
         return options;
     }
@@ -67,18 +98,16 @@ mesa.Core = (function($, util, mapper){
 
         load: function(options) {
 
-            var o = util.defaults(options || {}, defaults);
-            return rows($(o.root), prepareMapper(o));
+            return rows($(options.root), ensureOptionsAreInitialised(options));
         },
 
         loadFromQuery: function(query, options) {
             
-            var o = util.defaults(options || {}, defaults);
-            return rows(query, prepareMapper(o));
+            return rows(query, ensureOptionsAreInitialised(options));
         }
     };  
 
-})(jQuery, mesa.Util, mesa.FieldMapper);
+})(mesa.ObjectFactory.create('selector engine'), mesa.ObjectFactory.create('utility'), mesa.ObjectFactory.create('field mapper'));
 
 mesa.Plugin = (function($, core) {
 
@@ -92,6 +121,6 @@ mesa.Plugin = (function($, core) {
         }
     }
 
-})(jQuery, mesa.Core);
+})(mesa.ObjectFactory.create('selector engine'), mesa.Core);
 
 mesa.Plugin.integrateJQuery();
