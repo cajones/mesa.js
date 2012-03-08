@@ -19,7 +19,7 @@ mesa.Util = {
 mesa.FieldMapper = function(fieldNames) {
     var hasFields = fieldNames !== null && fieldNames !== undefined && fieldNames instanceof Array && fieldNames.length >= 1;
     this.getName = function(index) {
-        return hasFields ? fieldNames[index] : index;
+        return hasFields  ? fieldNames[index] : index;
     };
 };
 mesa.FieldMapper.prototype.map = function(i, e){
