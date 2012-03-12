@@ -1,3 +1,6 @@
+/// mesa.js - model loading from markup
+/// Credits to underscore.js and Zepto for minimalist implementations of each and selector engine
+
 window.mesa = window.mesa || {};
 
 mesa.ObjectFactory = (function() {
@@ -30,6 +33,22 @@ mesa.Util = {
             }
         };
         return obj;
+    },
+    each: function(obj, iterator, context) {
+        if (obj == null) return;
+        if (Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
+          obj.forEach(iterator, context);
+        } else if (obj.length === +obj.length) {
+          for (var i = 0, l = obj.length; i < l; i++) {
+            if (i in obj && iterator.call(context, obj[i], i, obj) === {}) return;
+          }
+        } else {
+          for (var key in obj) {
+            if (_.has(obj, key)) {
+              if (iterator.call(context, obj[key], key, obj) === {}) return;
+            }
+          }
+        }
     },
     SelectorEngine: function() {
         
@@ -86,26 +105,24 @@ mesa.construct = function() {
         function rows(root, options) {
 
             var r = [];
-            $(options.row, root).each(function(i, e) {
-        
+            util.each($(options.row, root), function(e, i) {
                 r.push(fields($(e), options));
             });
             return r;
         }
 
         function ensureOptionsAreInitialised(options) {
+
             var options = util.defaults(options || {}, defaults);
             options.mapper = options.mapper || new mapper(options.fieldNames);
             return options;
         }
 
         return {
-
             load: function(options) {
 
                 return rows($(options.root), ensureOptionsAreInitialised(options));
             },
-
             loadFromQuery: function(query, options) {
                 
                 return rows(query, ensureOptionsAreInitialised(options));
@@ -117,18 +134,19 @@ mesa.construct = function() {
     mesa.Plugin = (function($, core) {
 
         return {
-            integrateJQuery: function() {
+            integrate: function() {
                 
                 $.fn.mesa = function(options) {
                     
                     return core.loadFromQuery(this, options);
                 }
             }
-        }
+        };
 
     })(mesa.ObjectFactory.create('selector engine'), mesa.Core);
 
-    mesa.Plugin.integrateJQuery();
+    if(window['jQuery'] || window['Zepto'])
+        mesa.Plugin.integrate();
 };
 
 mesa.init();

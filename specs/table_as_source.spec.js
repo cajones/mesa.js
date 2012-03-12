@@ -1,3 +1,18 @@
+var ContextualAssertions = {
+
+    expectRowToHaveExpectedNumberOfColumns: function(selector, data, index) {
+        
+        var expectedColumns = $('tr:eq('+index+')', selector).children().length;
+        expect(data[index].length).to.be(expectedColumns);  
+    },
+
+    all: function(items, callback) {
+        for (var i = 0; i < items.length; i++) {
+            callback(i);
+        };
+    }
+};
+
 describe("loading a table containing data rows", function(){
     
     var selector = 'table tbody';
@@ -10,32 +25,25 @@ describe("loading a table containing data rows", function(){
         expect(data.length).to.be(expectedRows);
     });
 
-
-    it("should provide each row array with the same number of columns", function() {
-        
-        function expectRowToHaveExpectedColumns(index) {
-            
-            var expectedColumns = $('tr:eq('+index+')', selector).children().length;
-            expect(data[index].length).to.be(expectedColumns);  
-        }
-        
-        for (var i = 0; i < expectedRows.length; i++) {
-            expectRowToHaveExpectedColumns(i);
-        };
+    it("should provide each row with the same number of columns", function() {
+                
+        ContextualAssertions.all(expectedRows, function(i) {
+            ContextualAssertions.expectRowToHaveExpectedNumberOfColumns(selector, data, i);
+        });
     });
 
-    it("should provide an name field", function() {
+    it("should provide a name field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('name');
-        };
+        });
     });
 
     it("should provide an age field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('age');
-        };
+        });
     });
 });
 
@@ -51,32 +59,25 @@ describe("loading a table containing data rows with jQuery", function(){
         expect(data.length).to.be(expectedRows);
     });
 
-
-    it("should provide each row with the same number of fields", function() {
-        
-        function expectRowToHaveExpectedColumns(index) {
-            
-            var expectedColumns = $('tr:eq('+index+')', selector).children().length;
-            expect(data[index].length).to.be(expectedColumns);  
-        }
-        
-        for (var i = 0; i < expectedRows.length; i++) {
-            expectRowToHaveExpectedColumns(i);
-        };
+    it("should provide each row with the same number of columns", function() {
+                
+        ContextualAssertions.all(expectedRows, function(i) {
+            ContextualAssertions.expectRowToHaveExpectedNumberOfColumns(selector, data, i);
+        });
     });
 
-    it("should provide an name field", function() {
+    it("should provide a name field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('name');
-        };
+        });
     });
 
     it("should provide an age field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('age');
-        };
+        });
     });
 });
 

@@ -1,3 +1,18 @@
+var ContextualAssertions = {
+
+	expectRowToHaveExpectedNumberOfColumns: function(selector, data, index) {
+		
+		var expectedColumns = $('tr:eq('+index+')', selector).children().length;
+		expect(data[index].length).to.be(expectedColumns);	
+	},
+
+	all: function(items, callback) {
+		for (var i = 0; i < items.length; i++) {
+			callback(i);
+		};
+	}
+};
+
 describe("loading from a markup (set of divs and spans) containing data rows", function(){
 
 	var selector = '#data';
@@ -9,38 +24,31 @@ describe("loading from a markup (set of divs and spans) containing data rows", f
 								 col : 'span'
 								});
 
-
 	it("should provide an array containing the same number of rows", function() {
 
 		expect(data.length).to.be(expectedRows);
 	});
 
 
-	it("should provide each row array with the same number of columns", function() {
-		
-		function expectRowToHaveExpectedColumns(index) {
-			
-			var expectedColumns = $('tr:eq('+index+')', selector).children().length;
-			expect(data[index].length).to.be(expectedColumns);	
-		}
-		
-		for (var i = 0; i < expectedRows.length; i++) {
-			expectRowToHaveExpectedColumns(i);
-		};
+	it("should provide each row with the same number of columns", function() {
+				
+		ContextualAssertions.all(expectedRows, function(i) {
+			ContextualAssertions.expectRowToHaveExpectedNumberOfColumns(selector, data, i);
+		});
 	});
 
-	it("should provide an name field", function() {
+	it("should provide a name field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
-            expect(data[i]).to.have.property('name');
-        };
+        ContextualAssertions.all(expectedRows, function(i) {
+        	expect(data[i]).to.have.property('name');
+        });
     });
 
     it("should provide an age field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('age');
-        };
+        });
     });
 });
 
@@ -60,30 +68,24 @@ describe("loading from a markup (set of divs and spans) containing data rows wit
 	});
 
 
-	it("should provide each row array with the same number of columns", function() {
+	it("should provide each row with the same number of columns", function() {
 		
-		function expectRowToHaveExpectedColumns(index) {
-			
-			var expectedColumns = $('tr:eq('+index+')', selector).children().length;
-			expect(data[index].length).to.be(expectedColumns);	
-		}
-		
-		for (var i = 0; i < expectedRows.length; i++) {
-			expectRowToHaveExpectedColumns(i);
-		};
+		ContextualAssertions.all(expectedRows, function(i) {
+			expectRowToHaveExpectedNumberOfColumns(i);
+		});
 	});
 
-	it("should provide an name field", function() {
+	it("should provide a name field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('name');
-        };
+        });
     });
 
     it("should provide an age field", function() {
         
-        for (var i = 0; i < expectedRows.length; i++) {
+        ContextualAssertions.all(expectedRows, function(i) {
             expect(data[i]).to.have.property('age');
-        };
+        });
     });
 });
