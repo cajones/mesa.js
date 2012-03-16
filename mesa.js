@@ -81,7 +81,7 @@ mesa.init = function() {
 
 mesa.construct = function() {
 
-    mesa.Core = (function($, util, mapper){
+    mesa.Core = (function($, util, mapper) {
     
         var defaults = {
             root: 'table tbody',
@@ -106,6 +106,7 @@ mesa.construct = function() {
 
             var r = [];
             util.each($(options.row, root), function(e, i) {
+                
                 r.push(fields($(e), options));
             });
             return r;

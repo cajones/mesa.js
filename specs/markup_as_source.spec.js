@@ -2,12 +2,12 @@ var ContextualAssertions = {
 
 	expectRowToHaveExpectedNumberOfColumns: function(selector, data, index) {
 		
-		var expectedColumns = $('tr:eq('+index+')', selector).children().length;
+		var expectedColumns = $(':eq('+index+')', selector).children().length;
 		expect(data[index].length).to.be(expectedColumns);	
 	},
 
-	all: function(items, callback) {
-		for (var i = 0; i < items.length; i++) {
+	all: function(times, callback) {
+		for (var i = 0; i < times; i++) {
 			callback(i);
 		};
 	}
