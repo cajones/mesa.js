@@ -35,6 +35,7 @@ mesa.Util = {
         return obj;
     },
     each: function(obj, iterator, context) {
+        
         if (obj == null) return;
         if (Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
           obj.forEach(iterator, context);
