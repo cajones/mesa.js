@@ -2,7 +2,7 @@
 
 Experimental javascript library to load models from markup.
 
-Currently has a dependency on jQuery and it comes bundled with a plugin (.mesa).
+Currently has a dependency on jQuery or Zepto and it comes bundled with a plugin (.mesa).
 	
 	$(selector).mesa(opts)
 
@@ -67,3 +67,4 @@ mesa.Core.load and the jQuery plugin take the following options:
 # Running tests
 
 Open specs/specrunner.html in a browser.
+
