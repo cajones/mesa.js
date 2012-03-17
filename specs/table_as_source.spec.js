@@ -1,89 +1,95 @@
-var ContextualAssertions = {
+describe("a page with a table", function() {
 
-    expectRowToHaveExpectedNumberOfColumns: function(selector, data, index) {
-        
-        var expectedColumns = $('tr:eq('+index+') td', selector).length;
-        expect(data[index].length).to.be(expectedColumns);  
-    },
+    var ContextualAssertions = {
 
-    all: function(times, callback) {
+        expectObjectToHaveExpectedNumberOfProperties: function(selector, row, i) {
+            
+            var propertyCount = 0;
+            for(var prop in row) {
+                if(row.hasOwnProperty(prop)) {
+                    propertyCount++;
+                }
+            }
+            var expectedProperties = $('tr:has(td):eq('+i+') td', selector).length;
+            expect(propertyCount).to.be(expectedProperties);
+        },
 
-        for (var i = 0; i < times; i++) {
-            callback(i);
-        };
-    }
-};
+        all: function(times, callback) {
 
-describe("loading a table containing headings and data rows", function() {
+            for (var i = 0; i < times; i++) {
+                callback(i);
+            };
+        }
+    };
     
     var selector = 'table tbody';
     var expectedRows = $('tr:has(td)', selector).length;
 
-    var data = mesa.Core.load({ root : selector, fieldNames: 'th' });
-    
-    it("should provide an array containing the same number of rows", function() {
+    describe("when loading", function() {
 
-        expect(data.length).to.be(expectedRows);
-    });
-
-    it("should provide each row with the same number of columns", function() {
-                
-        ContextualAssertions.all(expectedRows, function(i) {
-
-            ContextualAssertions.expectRowToHaveExpectedNumberOfColumns(selector, data, i);
-        });
-    });
-
-    it("should provide a name field", function() {
+        var data = mesa.Core.load({ root : selector });
         
-        ContextualAssertions.all(expectedRows, function(i) {
+        it("should provide an array containing the same number of rows", function() {
 
-            expect(data[i]).to.have.property('name');
+            expect(data.length).to.be(expectedRows);
+        });
+
+        it("should provide each row with the same number of columns", function() {
+            
+            ContextualAssertions.all(expectedRows, function(i) {
+
+                ContextualAssertions.expectObjectToHaveExpectedNumberOfProperties(selector, data[i], i);    
+            });
+        });
+
+        it("should provide a name field", function() {
+            
+            ContextualAssertions.all(expectedRows, function(i) {
+
+                expect(data[i]).to.have.property('name');
+            });
+        });
+
+        it("should provide an age field", function() {
+            
+            ContextualAssertions.all(expectedRows, function(i) {
+
+                expect(data[i]).to.have.property('age');
+            });
         });
     });
 
-    it("should provide an age field", function() {
+    describe("loading with jQuery", function(){
         
-        ContextualAssertions.all(expectedRows, function(i) {
-
-            expect(data[i]).to.have.property('age');
-        });
-    });
-});
-
-describe("loading a table containing data rows with jQuery", function(){
-    
-    var selector = 'table tbody';
-    var expectedRows = $('tr:has(td)', selector).length;
-
-    var data = $(selector).mesa();
-    
-    it("should provide an array containing the same number of rows", function() {
-
-        expect(data.length).to.be(expectedRows);
-    });
-
-    it("should provide each row with the same number of columns", function() {
-                
-        ContextualAssertions.all(expectedRows, function(i) {
-
-            ContextualAssertions.expectRowToHaveExpectedNumberOfColumns(selector, data, i);
-        });
-    });
-
-    it("should provide a name field", function() {
+        var data = $(selector).mesa();
         
-        ContextualAssertions.all(expectedRows, function(i) {
+        it("should provide an array containing the same number of rows", function() {
 
-            expect(data[i]).to.have.property('name');
+            expect(data.length).to.be(expectedRows);
         });
-    });
 
-    it("should provide an age field", function() {
-        
-        ContextualAssertions.all(expectedRows, function(i) {
+        it("should provide each row with the same number of columns", function() {
+                    
+            ContextualAssertions.all(expectedRows, function(i) {
 
-            expect(data[i]).to.have.property('age');
+                ContextualAssertions.expectObjectToHaveExpectedNumberOfProperties(selector, data[i], i);
+            });
+        });
+
+        it("should provide a name field", function() {
+            
+            ContextualAssertions.all(expectedRows, function(i) {
+
+                expect(data[i]).to.have.property('name');
+            });
+        });
+
+        it("should provide an age field", function() {
+            
+            ContextualAssertions.all(expectedRows, function(i) {
+
+                expect(data[i]).to.have.property('age');
+            });
         });
     });
 });

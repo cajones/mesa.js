@@ -51,52 +51,64 @@ mesa.Util = {
           }
         }
     },
+    isArray: Array.isArray || function(o) { return (Object.prototype.toString.call(o) === '[object Array]'); },
     SelectorEngine: function() {
         
         throw "jQuery or Zepto is required as a selector engine.";
     }
 };
 
-mesa.FieldMapper = function(fieldNames) {
-    
-    var hasFields = fieldNames !== null && fieldNames !== undefined && fieldNames instanceof Array && fieldNames.length >= 1;
-    this.getName = function(index) {
-    
-        return hasFields  ? fieldNames[index] : index;
-    };
-};
-mesa.FieldMapper.prototype.map = function(i, e){
-    
-    return {
-        name: this.getName(i),
-        value: $(e).text()
-    };
-};
-
 mesa.init = function() {
 
     mesa.ObjectFactory.register.instance(window['jQuery'] || window['Zepto'] || mesa.Util.SelectorEngine, 'selector engine');
     mesa.ObjectFactory.register.instance(window['_'] || mesa.Util, 'utility');
-    mesa.ObjectFactory.register.instance(mesa.FieldMapper, 'field mapper');
 };
 
 mesa.construct = function() {
 
-    mesa.Core = (function($, util, mapper) {
+    mesa.Core = (function($, util) {
+
+        var FieldMapper = function(fieldNames) {
+            
+            var hasFields = fieldNames !== null && fieldNames !== undefined && typeof fieldNames !== "string" && fieldNames['length'] >= 1;
+            this.getName = function(index) {
+                
+                return hasFields ? fieldNames[index] : index;
+            };
+        };
+        FieldMapper.toCamelCase = function(text) {
+            
+            return text[0].toLowerCase() + text.substr(1);
+        };
+        FieldMapper.prototype.map = function(i, e){
+            
+            return {
+                name: this.getName(i),
+                value: $(e).text()
+            };
+        };
     
         var defaults = {
-            root: 'table tbody',
-            row: 'tr',
+            root: 'table tbody:has(tr)',
+            row: 'tr:has(td)',
             col: 'td',
-            fieldNames: null,
-            mapper: null
+            fieldNames: 'th',
+            mapper: null,
+            mapperType: FieldMapper,
+            selectFieldNames: function (selector, context) {
+
+                return $(selector, context).map(function (i, e) { 
+
+                    return FieldMapper.toCamelCase($(e).text());
+                });
+            }
         };
 
         function fields(row, options) {
 
             var model = {};
             $(options.col, row).each(function(i, e) {
-        
+                
                 var obj = options.mapper.map(i, e);
                 model[obj.name] = obj.value;
             });
@@ -116,11 +128,13 @@ mesa.construct = function() {
         function ensureOptionsAreInitialised(options) {
 
             var options = util.defaults(options || {}, defaults);
-            options.mapper = options.mapper || new mapper(options.fieldNames);
+            options.fieldNames = util.isArray(options.fieldNames) ? options.fieldNames : options.selectFieldNames(options.fieldNames, options.root);
+            options.mapper = options.mapper || new options.mapperType(options.fieldNames);
             return options;
         }
 
         return {
+            FieldMapper: FieldMapper,
             load: function(options) {
 
                 return rows($(options.root), ensureOptionsAreInitialised(options));
@@ -131,7 +145,7 @@ mesa.construct = function() {
             }
         };  
 
-    })(mesa.ObjectFactory.create('selector engine'), mesa.ObjectFactory.create('utility'), mesa.ObjectFactory.create('field mapper'));
+    })(mesa.ObjectFactory.create('selector engine'), mesa.ObjectFactory.create('utility'));
 
     mesa.Plugin = (function($, core) {
 
