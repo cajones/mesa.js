@@ -1,4 +1,4 @@
-describe("a page with a table", function() {
+describe("a page with a table, containing name and age values", function() {
 
     var ContextualAssertions = {
 

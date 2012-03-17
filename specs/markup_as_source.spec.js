@@ -1,4 +1,4 @@
-describe("a page with a set of divs and spans", function() {
+describe("a page with a set of divs and spans, containing name and age values", function() {
 
     var ContextualAssertions = {
 
